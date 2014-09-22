@@ -1,0 +1,52 @@
+// Use safeUp/safeDown to do migration with transaction
+public function safeUp()
+{
+	//create the issue table
+	$this->createTable('tbl_issue', array(
+	  'id' => 'pk',
+	  'name' => 'string NOT NULL',
+	  'description' => 'text',
+	  'analysis_id' => 'int(11) DEFAULT NULL',
+	  'type_id' => 'int(11) DEFAULT NULL',
+	  'status_id' => 'int(11) DEFAULT NULL',
+	  'owner_id' => 'int(11) DEFAULT NULL',
+	  'requester_id' => 'int(11) DEFAULT NULL',
+	  'create_time' => 'datetime DEFAULT NULL',
+	  'create_user_id' => 'int(11) DEFAULT NULL',
+	  'update_time' => 'datetime DEFAULT NULL',
+	  'update_user_id' => 'int(11) DEFAULT NULL',
+	   ), 'ENGINE=InnoDB');
+
+	//create the assignment table that allows for many-to-many 
+	//relationship between analysis and users
+	$this->createTable('tbl_analysis_user_assignment', array(
+	  'analysis_id' => 'int(11) NOT NULL',
+	  'user_id' => 'int(11) NOT NULL',
+	  'PRIMARY KEY (`analysis_id`,`user_id`)',
+	), 'ENGINE=InnoDB');
+
+    //foreign key relationships
+
+	//the tbl_issue.analysis_id is a reference to analysis.idAnalysis
+	$this->addForeignKey("fk_issue_analysis", "tbl_issue", "analysis_id", 
+	"analysis", "idAnalysis", "CASCADE", "RESTRICT");
+
+	//the tbl_issue.owner_id is a reference to user.idUser
+	$this->addForeignKey("fk_issue_owner", "tbl_issue", "owner_id", 
+	"user", "idUser", "CASCADE", "RESTRICT");
+
+	//the tbl_issue.requester_id is a reference to user.idUser
+	$this->addForeignKey("fk_issue_requester", "tbl_issue", 
+	"requester_id", "user", "idUser", "CASCADE", "RESTRICT");
+
+	//the tbl_analysis_user_assignment.analysis_id is a reference 
+	to analysis.idAnalysis
+	$this->addForeignKey("fk_analysis_user", "tbl_analysis_user_assignment", 
+	"analysis_id", "analysis", "idAnalysis", "CASCADE", "RESTRICT");
+
+	//the tbl_analysis_user_assignment.user_id is a reference 
+	to user.idUser
+	$this->addForeignKey("fk_user_analysis", "tbl_analysis_user_assignment", 
+	"user_id", "user", "idUser", "CASCADE", "RESTRICT");
+
+}
